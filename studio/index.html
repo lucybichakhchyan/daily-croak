@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Daily Croak</title>
+<style>
+@font-face{font-family:Orbitron;src:url(fonts/Orbitron.ttf);font-weight:400 900}
+@font-face{font-family:'Chakra Petch';src:url(fonts/ChakraPetch-SemiBold.ttf);font-weight:600}
+@font-face{font-family:Inter;src:url(fonts/Inter.ttf);font-weight:100 900}
+:root{--cyan:#22d3ee;--pink:#ec4899;--green:#39ff14;--amber:#fbbf24;--silver:#d1d5db;--dim:#9ca3af;--line:#ffffff24;--hud:'Chakra Petch',sans-serif}
+*{box-sizing:border-box}
+html{background:#000}
+body{margin:0;color:#fff;font:16px/1.55 Inter,sans-serif;background:repeating-linear-gradient(0deg,transparent 0 3px,#39ff1406 3px 4px),#000;min-height:100vh}
+main{max-width:1180px;margin:0 auto;padding:32px 24px 72px;display:grid;gap:24px}
+header{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;flex-wrap:wrap}
+h1{font:800 clamp(26px,5vw,42px)/1.1 Orbitron,sans-serif;margin:0;color:#fff;text-shadow:0 0 18px #22d3ee66}
+.tag{margin:6px 0 0;color:var(--dim);font-size:14px}
+.meta{font:600 13px var(--hud);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);text-align:right}
+.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;list-style:none;margin:0;padding:0}
+.steps li{border:1px solid var(--line);padding:10px 12px;font:600 13px var(--hud);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);clip-path:polygon(10px 0,100% 0,100% 100%,0 100%,0 10px)}
+.steps li span{display:block;color:var(--dim);font-size:11px}
+.steps li.done{border-color:var(--green);color:var(--green)}
+.steps li.now{border-color:var(--cyan);color:var(--cyan);background:#22d3ee14}
+.panel{--tint:var(--cyan);border:1px solid color-mix(in srgb,var(--tint) 45%,transparent);background:color-mix(in srgb,var(--tint) 4%,#000);padding:20px}
+.panel>h2{display:flex;align-items:center;gap:10px;margin:0 0 16px;font:600 14px var(--hud);letter-spacing:.18em;text-transform:uppercase;color:var(--silver)}
+.panel>h2::before{content:'';width:9px;height:9px;border-radius:50%;background:var(--tint)}
+.panel>h2 small{color:var(--dim);font:inherit;letter-spacing:.1em}
+.run{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.run p{margin:0;color:var(--silver);flex:1 1 280px;font-size:14px}
+button{font:600 15px var(--hud);letter-spacing:.14em;text-transform:uppercase;border:0;padding:12px 26px;cursor:pointer;background:var(--green);color:#000;clip-path:polygon(12px 0,100% 0,100% 100%,0 100%)}
+button.quiet{background:#ffffff14;color:#fff}
+button.danger{background:var(--pink);color:#000}
+button:disabled{background:#ffffff14;color:var(--dim);cursor:not-allowed}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:16px}
+.tab{all:unset;box-sizing:border-box;cursor:pointer;display:block;border:1px solid var(--line);padding:12px 14px;min-width:0}
+.tab:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.tab[aria-selected=true]{border-color:var(--cyan);background:#22d3ee14}
+.tab b{display:block;font:600 16px var(--hud);color:#fff;overflow:hidden;text-overflow:ellipsis}
+.chip{font:600 11px var(--hud);letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+.chip.approved{color:var(--green)}.chip.rejected,.chip.failed{color:var(--pink)}
+.detail h3{font:800 clamp(19px,3vw,26px)/1.25 Orbitron,sans-serif;margin:0 0 4px;overflow-wrap:anywhere}
+.by{color:var(--green);font:600 16px var(--hud);margin:0 0 16px}
+.by a{color:var(--cyan);margin-left:12px;font-size:14px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+label,.sub{display:grid;gap:6px;font:600 12px var(--hud);letter-spacing:.14em;text-transform:uppercase;color:var(--silver)}
+.sub{margin:0 0 6px}
+input[type=text],textarea{width:100%;background:#050505;color:#fff;border:1px solid var(--line);padding:10px 12px;font:16px/1.5 Inter,sans-serif;border-radius:0;letter-spacing:0;text-transform:none}
+textarea{min-height:190px;resize:vertical}
+textarea.short{min-height:82px}
+.source{border:1px solid var(--line);padding:12px;max-height:280px;overflow:auto;color:var(--silver);font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+ul.notes{margin:14px 0 0;padding-left:18px;color:var(--silver);font-size:14px}
+.decide{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.agree{display:flex;gap:10px;align-items:flex-start;font:15px Inter,sans-serif;letter-spacing:0;text-transform:none;color:#fff;margin-bottom:12px}
+.agree input{width:20px;height:20px;accent-color:var(--green);flex:none;margin:2px 0 0}
+.empty{color:var(--dim);margin:0}
+.skip{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.skip button{padding:4px 10px;font-size:12px;letter-spacing:.06em;text-transform:none;background:#ffffff14;color:#fff;clip-path:none}
+.add{display:flex;gap:10px;max-width:440px}
+.images{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:20px}
+.images h4{font:600 13px var(--hud);letter-spacing:.14em;color:var(--cyan);margin:0 0 8px}
+.images canvas{width:100%;height:auto;display:block;border:1px solid var(--line)}
+.images a{display:inline-block;margin-top:8px;color:var(--cyan)}
+.fields{display:grid;gap:14px;margin-bottom:16px}
+#toast{position:sticky;bottom:16px;border:1px solid var(--cyan);background:#000;padding:10px 14px;font-size:15px}
+#toast:empty{display:none}
+#toast.bad{border-color:var(--pink);color:#fff}
+footer{color:var(--dim);font-size:13px}
+@media(max-width:640px){main{padding:20px 16px 56px}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.meta{text-align:left}.add{flex-wrap:wrap}button{width:100%}.skip button{width:auto}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+function wrap(ctx, text, maxW) {
+  const lines = [];
+  let line = '';
+  for (const word of text.split(/\s+/)) {
+    const next = line ? `${line} ${word}` : word;
+    if (line && ctx.measureText(next).width > maxW) { lines.push(line); line = word; } else line = next;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function fit(ctx, text, font, maxW, maxSize, minSize, maxLines) {
+  for (let size = maxSize; size >= minSize; size -= 2) {
+    ctx.font = font(size);
+    const lines = wrap(ctx, text, maxW);
+    if (lines.length <= maxLines && lines.every(l => ctx.measureText(l).width <= maxW)) return { size, lines, fits: true };
+  }
+  ctx.font = font(minSize);
+  return { size: minSize, lines: wrap(ctx, text, maxW), fits: false };
+}
+
+function label(ctx, text, x, y, color, align = 'left') {
+  ctx.font = "600 26px 'Chakra Petch'";
+  ctx.letterSpacing = '4.5px';
+  ctx.fillStyle = color;
+  ctx.textAlign = align;
+  ctx.fillText(text, x, y);
+  ctx.letterSpacing = '0px';
+  ctx.textAlign = 'left';
+}
+
+function frame(ctx, x, y, w, h, cut) {
+  ctx.beginPath();
+  ctx.moveTo(x + cut, y);
+  ctx.lineTo(x + w, y);
+  ctx.lineTo(x + w, y + h - cut);
+  ctx.lineTo(x + w - cut, y + h);
+  ctx.lineTo(x, y + h);
+  ctx.lineTo(x, y + cut);
+  ctx.closePath();
+}
+
+function draw(ctx, d, s) {
+  const { w, h } = s;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, w, h);
+  const glowA = ctx.createRadialGradient(0, 0, 0, 0, 0, w);
+  glowA.addColorStop(0, '#22d3ee2e');
+  glowA.addColorStop(1, '#22d3ee00');
+  ctx.fillStyle = glowA;
+  ctx.fillRect(0, 0, w, h);
+  const glowB = ctx.createRadialGradient(w, h, 0, w, h, w);
+  glowB.addColorStop(0, '#ec48992e');
+  glowB.addColorStop(1, '#ec489900');
+  ctx.fillStyle = glowB;
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#39ff140a';
+  for (let y = 3; y < h; y += 4) ctx.fillRect(0, y, w, 1);
+
+  const fx = 72, fy = s.top, fw = w - 144, fh = h - s.top - s.bottom, pad = 60;
+  const left = fx + pad, right = fx + fw - pad, inner = right - left;
+  frame(ctx, fx, fy, fw, fh, 40);
+  ctx.fillStyle = '#ffffff06';
+  ctx.fill();
+  ctx.strokeStyle = C.cyan;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.fillStyle = C.pink;
+  ctx.beginPath();
+  ctx.arc(left + 8, fy + 72, 8, 0, Math.PI * 2);
+  ctx.fill();
+  label(ctx, 'THE DAILY CROAK', left + 32, fy + 81, C.cyan);
+  ctx.fillStyle = '#ffffff24';
+  ctx.fillRect(left, fy + 116, inner, 2);
+
+  const footerY = fy + fh - 60;
+  ctx.fillRect(left, footerY - 52, inner, 2);
+  ctx.font = '500 23px Inter';
+  ctx.fillStyle = C.dim;
+  ctx.fillText('Unofficial community project. Not affiliated with Swamp Club.', left, footerY);
+
+  const titleFont = size => `800 ${size}px Orbitron`;
+  const bodyFont = size => `400 ${size}px Inter`;
+  const handle = `@${d.builder.replace(/^@/, '')}`;
+  const nameFit = fit(ctx, handle, size => `600 ${size}px 'Chakra Petch'`, inner, 50, 30, 1);
+  const titleFit = fit(ctx, d.title, titleFont, inner, s.titleMax, 44, s.titleLines);
+  const bodyFit = fit(ctx, d.description, bodyFont, inner, 42, 30, 4);
+  const titleLine = Math.round(titleFit.size * 1.2), bodyLine = Math.round(bodyFit.size * 1.42);
+  const blockH = nameFit.size + 44 + titleFit.lines.length * titleLine + 44 + 6 + 44 + bodyFit.lines.length * bodyLine;
+  const areaTop = fy + 118, areaBottom = footerY - 54;
+  let y = areaTop + Math.max(24, (areaBottom - areaTop - blockH) / 2);
+
+  y += nameFit.size;
+  ctx.save();
+  ctx.font = `600 ${nameFit.size}px 'Chakra Petch'`;
+  ctx.fillStyle = C.green;
+  ctx.shadowColor = C.green;
+  ctx.shadowBlur = 22;
+  ctx.fillText(handle, left, y);
+  ctx.restore();
+
+  y += 44;
+  ctx.font = titleFont(titleFit.size);
+  ctx.fillStyle = '#fff';
+  for (const line of titleFit.lines) { y += titleLine; ctx.fillText(line, left, y - Math.round(titleLine * .2)); }
+
+  y += 34;
+  ctx.fillStyle = C.pink;
+  ctx.fillRect(left, y, 120, 6);
+  y += 6 + 34;
+
+  ctx.font = bodyFont(bodyFit.size);
+  ctx.fillStyle = C.silver;
+  for (const line of bodyFit.lines) { y += bodyLine; ctx.fillText(line, left, y - Math.round(bodyLine * .25)); }
+
+  if (!d.approved) {
+    ctx.save();
+    ctx.translate(w / 2, h / 2);
+    ctx.rotate(-Math.PI / 7);
+    ctx.font = '800 92px Orbitron';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ec489966';
+    ctx.fillText('NOT APPROVED', 0, 30);
+    ctx.restore();
+  }
+  return titleFit.fits && bodyFit.fits && nameFit.fits && y <= areaBottom + 8;
+}
+
+
+const SIZES = [
+  { id: '4x5', label: '4:5 FEED, 1080 x 1350', w: 1080, h: 1350, top: 84, bottom: 84, titleMax: 84, titleLines: 5 },
+  { id: '9x16', label: '9:16 STORY, 1080 x 1920', w: 1080, h: 1920, top: 270, bottom: 380, titleMax: 84, titleLines: 6 },
+];
+const C = { cyan: '#22d3ee', pink: '#ec4899', green: '#39ff14', silver: '#d1d5db', dim: '#9ca3af' };
+const WAITING = ['waiting for approval', 'failed checks'];
+const ui = { selected: null, fields: {}, edits: {}, agreed: {}, reasons: {}, images: {}, busy: false, confirmRun: false, message: '', bad: false };
+let data = { drafts: [], skip: [] };
+
+const h = (tag, props = {}, ...kids) => {
+  const el = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (key.startsWith('on')) el.addEventListener(key.slice(2), value);
+    else if (key in el) el[key] = value;
+    else el.setAttribute(key, value);
+  }
+  el.append(...kids.flat().filter(kid => kid !== null && kid !== undefined && kid !== false));
+  return el;
+};
+
+const say = (message, bad = false) => { ui.message = message; ui.bad = bad; };
+
+async function post(path, body) {
+  const response = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || 'That did not work.');
+  return result;
+}
+
+async function refresh() {
+  data = await fetch('/api/state').then(r => r.json());
+  const usable = data.drafts.map(d => d.builder);
+  if (!usable.includes(ui.selected)) ui.selected = usable[0] ?? null;
+  render();
+}
+
+async function act(busyMessage, work) {
+  ui.busy = true;
+  say(busyMessage);
+  render();
+  try {
+    const done = await work();
+    say(done || '');
+  } catch (error) {
+    say(error.message, true);
+  }
+  ui.busy = false;
+  await refresh();
+}
+
+const waitingCount = () => data.drafts.filter(d => WAITING.includes(d.status)).length;
+const chipClass = status => status === 'approved' ? 'approved' : status === 'rejected' ? 'rejected' : status === 'failed checks' ? 'failed' : '';
+
+function runDrafts() {
+  if (waitingCount() && !ui.confirmRun) {
+    ui.confirmRun = true;
+    render();
+    return;
+  }
+  ui.confirmRun = false;
+  ui.edits = {};
+  ui.agreed = {};
+  ui.images = {};
+  ui.fields = {};
+  act('Finding posts and writing drafts. This takes about a minute.', async () => {
+    await post('/api/run', {});
+    return 'New drafts are ready for review.';
+  });
+}
+
+function approve(draft) {
+  const edited = ui.edits[draft.builder];
+  const text = edited !== undefined && edited !== draft.draft ? edited : undefined;
+  act(`Approving ${draft.builder}.`, async () => {
+    await post('/api/approve', { builder: draft.builder, agreed: true, text });
+    delete ui.edits[draft.builder];
+    return `${draft.builder} is approved and saved.`;
+  });
+}
+
+function reject(draft) {
+  act(`Rejecting ${draft.builder}.`, async () => {
+    await post('/api/reject', { builder: draft.builder, reason: ui.reasons[draft.builder] ?? '' });
+    return `${draft.builder} is rejected.`;
+  });
+}
+
+async function generate(draft, fields) {
+  const clean = { builder: fields.builder.trim(), title: fields.title.trim(), description: fields.description.trim(), approved: draft.status === 'approved' };
+  if (!clean.builder || !clean.title || !clean.description) { say('Fill in the username, title and description first.', true); render(); return; }
+  await Promise.all(['800 40px Orbitron', "600 40px 'Chakra Petch'", '400 40px Inter', '500 40px Inter'].map(font => document.fonts.load(font, 'Aa@')));
+  const made = [], problems = [];
+  for (const s of SIZES) {
+    const canvas = Object.assign(document.createElement('canvas'), { width: s.w, height: s.h });
+    if (!draw(canvas.getContext('2d'), clean, s)) problems.push(s.id.replace('x', ':'));
+    const name = `${clean.builder.replace(/^@/, '')}-${s.id}${clean.approved ? '' : '-not-approved'}`;
+    const png = canvas.toDataURL('image/png');
+    const { saved } = await post('/api/save', { name, png });
+    made.push({ label: s.label, canvas, png, name, saved });
+  }
+  ui.images[draft.builder] = made;
+  say(problems.length ? `The text is too long for ${problems.join(' and ')}. Shorten it and generate again.` : clean.approved ? 'Both images are saved in the images folder.' : 'Saved with a NOT APPROVED stamp, because this post is not approved yet.', problems.length > 0);
+  await refresh();
+}
+
+function renderHeader() {
+  const when = data.draftedAt ? new Date(data.draftedAt).toLocaleString() : 'No run yet';
+  const tokens = data.drafts.reduce((sum, d) => sum + (d.inputTokens || 0) + (d.outputTokens || 0), 0);
+  return h('header', {},
+    h('div', {}, h('h1', {}, 'The Daily Croak'), h('p', { className: 'tag' }, 'A community content desk, from a Feed post to an approved image.')),
+    h('div', { className: 'meta' }, `Last run: ${when}`, h('br'), `${data.model ?? 'No model'} · ${tokens.toLocaleString()} tokens`));
+}
+
+function renderSteps() {
+  const hasDrafts = data.drafts.some(d => d.draft);
+  const anyApproved = data.drafts.some(d => d.status === 'approved');
+  const states = [hasDrafts, hasDrafts, hasDrafts, anyApproved, data.imageCount > 0];
+  const nowAt = states.indexOf(false);
+  const names = ['Find', 'Pick', 'Draft', 'Approve', 'Image'];
+  return h('ol', { className: 'steps' }, names.map((name, i) =>
+    h('li', { className: states[i] ? 'done' : i === nowAt ? 'now' : '' }, h('span', {}, `0${i + 1}`), name)));
+}
+
+function renderRun() {
+  const waiting = waitingCount();
+  const label = ui.busy ? 'Working' : ui.confirmRun ? `Replace ${waiting} undecided` : 'Find and draft';
+  return h('section', { className: 'panel' },
+    h('h2', {}, 'Run'),
+    h('div', { className: 'run' },
+      h('p', {}, ui.confirmRun
+        ? 'A new run replaces every undecided draft. Approved posts stay saved.'
+        : 'Reads the Feed, picks the newest post from up to three builders, and asks Claude Haiku to draft each one. Each run makes three small paid calls and posts nothing.'),
+      ui.confirmRun && h('button', { className: 'quiet', onclick: () => { ui.confirmRun = false; render(); } }, 'Cancel'),
+      h('button', { disabled: ui.busy, onclick: runDrafts, className: ui.confirmRun ? 'danger' : '' }, label)));
+}
+
+function renderDetail(draft) {
+  const open = WAITING.includes(draft.status);
+  const text = ui.edits[draft.builder] ?? draft.draft ?? '';
+  const safeUrl = /^https?:\/\//.test(draft.sourceUrl || '') ? draft.sourceUrl : null;
+  return h('div', { className: 'detail' },
+    h('h3', {}, draft.title || 'Untitled post'),
+    h('p', { className: 'by' }, `@${draft.builder}`, safeUrl && h('a', { href: safeUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Open the source')),
+    h('div', { className: 'cols' },
+      h('div', {},
+        h('label', {}, 'Draft',
+          h('textarea', { value: text, disabled: !open, oninput: e => { ui.edits[draft.builder] = e.target.value; } })),
+        draft.notes?.length ? h('ul', { className: 'notes' }, draft.notes.map(note => h('li', {}, note))) : null),
+      h('div', {},
+        h('p', { className: 'sub' }, 'Source text'),
+        h('div', { className: 'source', tabIndex: 0 }, draft.sourceText || 'The source text is not stored for this older post.'))),
+    open && h('div', { className: 'decide' },
+      h('div', {},
+        h('label', { className: 'agree' },
+          h('input', { type: 'checkbox', checked: !!ui.agreed[draft.builder], onchange: e => { ui.agreed[draft.builder] = e.target.checked; render(); } }),
+          h('span', {}, 'I read this against the source, and the builder agreed to be featured.')),
+        h('button', { disabled: ui.busy || !ui.agreed[draft.builder], onclick: () => approve(draft) }, 'Approve')),
+      h('div', {},
+        h('label', {}, 'Reason for rejecting',
+          h('input', { type: 'text', value: ui.reasons[draft.builder] ?? '', oninput: e => { ui.reasons[draft.builder] = e.target.value; } })),
+        h('button', { className: 'danger', style: 'margin-top:12px', disabled: ui.busy, onclick: () => reject(draft) }, 'Reject'))));
+}
+
+function renderReview(selected) {
+  const count = data.drafts.length;
+  return h('section', { className: 'panel', style: '--tint:var(--amber)' },
+    h('h2', {}, 'Review ', h('small', {}, `· ${waitingCount()}/${count} undecided`)),
+    !count ? h('p', { className: 'empty' }, 'There are no drafts yet. Press Find and draft to start.') : [
+      h('div', { className: 'tabs', role: 'tablist' }, data.drafts.map(d =>
+        h('button', { className: 'tab', role: 'tab', 'aria-selected': String(d.builder === ui.selected), onclick: () => { ui.selected = d.builder; render(); } },
+          h('b', {}, `@${d.builder}`), h('span', { className: `chip ${chipClass(d.status)}` }, d.status)))),
+      selected && renderDetail(selected)]);
+}
+
+function renderImages(selected) {
+  const panel = h('section', { className: 'panel', style: '--tint:var(--pink)' }, h('h2', {}, 'Images'));
+  if (!selected || selected.status === 'rejected' || !selected.draft) {
+    panel.append(h('p', { className: 'empty' }, 'Choose a draft that has not been rejected.'));
+    return panel;
+  }
+  ui.fields[selected.builder] ??= { builder: selected.builder, title: selected.title || '', description: selected.imageCaption || '' };
+  const fields = ui.fields[selected.builder];
+  const field = (name, label, control) => h('label', {}, label, control === 'area'
+    ? h('textarea', { className: 'short', maxLength: 140, value: fields[name], oninput: e => { fields[name] = e.target.value; } })
+    : h('input', { type: 'text', value: fields[name], oninput: e => { fields[name] = e.target.value; } }));
+  panel.append(
+    h('div', { className: 'fields' }, field('builder', 'Username'), field('title', 'Title'), field('description', 'Short description', 'area')),
+    h('button', { disabled: ui.busy, onclick: () => generate(selected, fields) }, 'Generate'));
+  const made = ui.images[selected.builder];
+  if (made) panel.append(h('div', { className: 'images' }, made.map(item =>
+    h('div', {}, h('h4', {}, item.label), item.canvas, h('a', { href: item.png, download: `${item.name}.png` }, `Download ${item.saved}`)))));
+  return panel;
+}
+
+function renderSkip() {
+  const box = h('input', { type: 'text', 'aria-label': 'Name to skip', placeholder: 'Username or collective' });
+  const change = (body, message) => act('Updating the skip list.', async () => { await post('/api/skip', body); return message; });
+  return h('section', { className: 'panel', style: '--tint:var(--green)' },
+    h('h2', {}, 'Skip list ', h('small', {}, `· ${data.skip.length}`)),
+    h('div', { className: 'skip' }, data.skip.map(name =>
+      h('button', { 'aria-label': `Remove ${name}`, disabled: ui.busy, onclick: () => change({ remove: name }, `${name} was removed.`) }, `${name} ×`))),
+    h('div', { className: 'add' }, box, h('button', { className: 'quiet', disabled: ui.busy, onclick: () => box.value.trim() && change({ add: box.value.trim() }, `${box.value.trim()} will be skipped.`) }, 'Add')));
+}
+
+function render() {
+  const selected = data.drafts.find(d => d.builder === ui.selected);
+  const app = document.getElementById('app');
+  app.replaceChildren(
+    renderHeader(), renderSteps(), renderRun(), renderReview(selected), renderImages(selected), renderSkip(),
+    h('div', { id: 'toast', role: 'status', className: ui.bad ? 'bad' : '' }, ui.message),
+    h('footer', {}, 'Unofficial community project. Not affiliated with Swamp Club. Nothing here posts anywhere.'));
+}
+
+refresh();
+</script>
+</body>
+</html>

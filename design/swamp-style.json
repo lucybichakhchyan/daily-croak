@@ -1,0 +1,34 @@
+{
+  "source": "https://swamp-club.com/press and the site's public stylesheet, read 2026-11-05",
+  "colors": {
+    "background": "#000000",
+    "cyan": "#22d3ee",
+    "pink": "#ec4899",
+    "neonGreen": "#39ff14",
+    "white": "#ffffff",
+    "silver": "#d1d5db",
+    "dim": "#9ca3af"
+  },
+  "colorRoles": {
+    "cyan": "links and primary accents",
+    "pink": "highlights",
+    "neonGreen": "glow and calls to action",
+    "background": "backgrounds"
+  },
+  "fonts": {
+    "display": "Orbitron",
+    "labels": "Chakra Petch",
+    "body": "Inter"
+  },
+  "details": {
+    "labelTracking": "0.14em to 0.18em",
+    "labelCase": "uppercase",
+    "scanlines": "repeating-linear-gradient(0deg, transparent 0 3px, #39ff1406 3px 4px)"
+  },
+  "sizes": {
+    "feed": { "ratio": "4:5", "width": 1080, "height": 1350 },
+    "story": { "ratio": "9:16", "width": 1080, "height": 1920 }
+  },
+  "logos": "Do not use. The SC mark and wordmark are reserved by the Swamp Club trademark policy unless Swamp Club gives permission.",
+  "naming": "Write Swamp and Swamp Club, never SWAMP or swamp club. Use lowercase swamp only for the command-line tool."
+}

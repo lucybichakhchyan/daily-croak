@@ -1,0 +1,51 @@
+id: 9f231743-ef07-404b-841f-f9cb70795fa6
+name: daily-croak
+description: Find builders who wrote or published recently and pick the ones most worth featuring
+tags: {}
+inputs:
+  properties:
+    live:
+      type: boolean
+      default: false
+      description: Set true to call Claude; false builds prompts only
+jobs:
+  - name: scout
+    description: Reads public data only, so this job costs no AI
+    steps:
+      - name: find
+        description: Read recent Feed posts and new registry extensions
+        task:
+          type: behavior
+          behavior: scout
+          methodName: find
+        dependsOn: []
+        weight: 0
+      - name: pick
+        description: Take the newest post from each builder, three in all
+        task:
+          type: behavior
+          behavior: scout
+          methodName: pick
+        dependsOn:
+          - step: find
+            condition:
+              type: succeeded
+        weight: 0
+      - name: draft
+        description: Write one draft per pick (dry run until the key is checked); no AI call in dry-run mode
+        task:
+          type: behavior
+          behavior: drafter
+          methodName: draft
+          inputs:
+            count: 3
+            dryRun: ${{ !inputs.live }}
+            apiKey: ${{ vault.get("default", "ANTHROPIC_API_KEY") }}
+        dependsOn:
+          - step: pick
+            condition:
+              type: succeeded
+        weight: 0
+    dependsOn: []
+    weight: 0
+version: 1

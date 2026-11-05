@@ -1,0 +1,12 @@
+type: '@thedarkpriestess/daily-croak'
+typeVersion: 2026.11.05.3
+id: 8728cd7c-cd28-4599-b167-f7ca1c2b4e6a
+name: scout
+version: 1
+tags: {}
+globalArguments:
+  # Names to leave out of the picks, such as the Swamp team and anyone else
+  # you do not want to feature. Add usernames and collectives, one per line.
+  skip:
+    - swamp
+methods: {}
