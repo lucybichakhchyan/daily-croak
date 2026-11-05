@@ -4,6 +4,8 @@ The Daily Croak is a small content desk built on [Swamp](https://swamp-club.com)
 
 This is an unofficial community project. It is not affiliated with or endorsed by Swamp Club.
 
+**[Try the live demo](https://lucybichakhchyan.github.io/daily-croak/).** It uses made-up builders and posts, makes no Claude calls, and forgets your changes when you reload.
+
 ![A sample 4:5 image made by the studio](docs/sample-4x5.png)
 
 ## Why it exists

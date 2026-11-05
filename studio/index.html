@@ -66,6 +66,7 @@ ul.notes{margin:14px 0 0;padding-left:18px;color:var(--silver);font-size:14px}
 #toast{position:sticky;bottom:16px;border:1px solid var(--cyan);background:#000;padding:10px 14px;font-size:15px}
 #toast:empty{display:none}
 #toast.bad{border-color:var(--pink);color:#fff}
+.demo{margin:0;border:1px solid var(--pink);padding:10px 14px;font-size:15px;color:#fff}
 footer{color:var(--dim);font-size:13px}
 @media(max-width:640px){main{padding:20px 16px 56px}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.meta{text-align:left}.add{flex-wrap:wrap}button{width:100%}.skip button{width:auto}}
 </style>
@@ -267,7 +268,7 @@ function runDrafts() {
   ui.agreed = {};
   ui.images = {};
   ui.fields = {};
-  act('Finding posts and writing drafts. This takes about a minute.', async () => {
+  act(window.CROAK_DEMO ? 'Loading the sample drafts.' : 'Finding posts and writing drafts. This takes about a minute.', async () => {
     await post('/api/run', {});
     return 'New drafts are ready for review.';
   });
@@ -304,7 +305,7 @@ async function generate(draft, fields) {
     made.push({ label: s.label, canvas, png, name, saved });
   }
   ui.images[draft.builder] = made;
-  say(problems.length ? `The text is too long for ${problems.join(' and ')}. Shorten it and generate again.` : clean.approved ? 'Both images are saved in the images folder.' : 'Saved with a NOT APPROVED stamp, because this post is not approved yet.', problems.length > 0);
+  say(problems.length ? `The text is too long for ${problems.join(' and ')}. Shorten it and generate again.` : clean.approved ? (window.CROAK_DEMO ? 'Both images are ready to download.' : 'Both images are saved in the images folder.') : 'These images carry a NOT APPROVED stamp, because this post is not approved yet.', problems.length > 0);
   await refresh();
 }
 
@@ -334,7 +335,9 @@ function renderRun() {
     h('div', { className: 'run' },
       h('p', {}, ui.confirmRun
         ? 'A new run replaces every undecided draft. Approved posts stay saved.'
-        : 'Reads the Feed, picks the newest post from up to three builders, and asks Claude Haiku to draft each one. Each run makes three small paid calls and posts nothing.'),
+        : window.CROAK_DEMO
+          ? 'In the real app, this reads the Feed and asks Claude Haiku to write drafts. In this demo, it reloads the made-up samples.'
+          : 'Reads the Feed, picks the newest post from up to three builders, and asks Claude Haiku to draft each one. Each run makes three small paid calls and posts nothing.'),
       ui.confirmRun && h('button', { className: 'quiet', onclick: () => { ui.confirmRun = false; render(); } }, 'Cancel'),
       h('button', { disabled: ui.busy, onclick: runDrafts, className: ui.confirmRun ? 'danger' : '' }, label)));
 }
@@ -393,7 +396,7 @@ function renderImages(selected) {
     h('button', { disabled: ui.busy, onclick: () => generate(selected, fields) }, 'Generate'));
   const made = ui.images[selected.builder];
   if (made) panel.append(h('div', { className: 'images' }, made.map(item =>
-    h('div', {}, h('h4', {}, item.label), item.canvas, h('a', { href: item.png, download: `${item.name}.png` }, `Download ${item.saved}`)))));
+    h('div', {}, h('h4', {}, item.label), item.canvas, h('a', { href: item.png, download: `${item.name}.png` }, window.CROAK_DEMO ? 'Download PNG' : `Download ${item.saved}`)))));
   return panel;
 }
 
@@ -411,6 +414,7 @@ function render() {
   const selected = data.drafts.find(d => d.builder === ui.selected);
   const app = document.getElementById('app');
   app.replaceChildren(
+    window.CROAK_DEMO && h('p', { className: 'demo' }, 'This is a demo with made-up builders and posts. It makes no Claude calls, and your changes disappear when you reload.'),
     renderHeader(), renderSteps(), renderRun(), renderReview(selected), renderImages(selected), renderSkip(),
     h('div', { id: 'toast', role: 'status', className: ui.bad ? 'bad' : '' }, ui.message),
     h('footer', {}, 'Unofficial community project. Not affiliated with Swamp Club. Nothing here posts anywhere.'));
